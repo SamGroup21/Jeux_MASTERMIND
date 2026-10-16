@@ -3,8 +3,8 @@ import pygame as pg
 import random
 import math
 
-pg.init()
 
+pg.init()
 #definition de variables globales
 Noir = (0,0,0)
 Blanc = (255,255,255)
@@ -142,6 +142,8 @@ def afficherResultat(f:pg.Surface,res,ligne):
         i = i + 1
         j = j + 1
     pg.display.update()
+
+
 
 
 

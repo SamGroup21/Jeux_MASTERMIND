@@ -3,40 +3,44 @@ import random
 import mm           
  
 NB_PIONS = 5         
-NB_ESSAIS_MAX = 2
+NB_ESSAIS_MAX = 15
  
  
 
-def genererSecret() -> list:# # main()
-
-    secret = []                                  #on cree une liste secrete            
+def genererCombSecret() -> list:# # main()
+    CombSecret = []                                  #on cree une liste secrete            
     for i in range(0,NB_PIONS):                    #on parcours du premier couleur au 4 eme
         couleur = random.choice(mm.TabCouleur)    #on choisit une couleur par hasard
-        secret.append(couleur)                   # et a chaque fois on ajoute en secret une couleur
-    return secret
+        CombSecret.append(couleur)                   # et a chaque fois on ajoute en CombSecret une couleur
+    return CombSecret
  
  
 
-def nbBienPlaces(secret: list, prop: list) -> int:
+def nbBienPlaces(CombSecret: list, prop: list) -> int:
     nb = 0
     for i in range(0,NB_PIONS):       # on compte(ou parcours les nombre de pion a partir du promier
-        if secret[i] == prop[i]:     # même couleur à la même position
+        if CombSecret[i] == prop[i]:     # même couleur à la même position
             nb = nb + 1
     return nb
  
  
 
-def nbMalPlaces(secret: list, prop: list) -> int:
-    communs = 0
-    for couleur in mm.TabCouleur:              # parcourir la liste des couleur de la biblioteche mm
-        communs = communs + min(secret.count(couleur), prop.count(couleur))
-    # parmi les pions communs, ceux déjà bien placés ne sont pas "mal placés"
-    return communs - nbBienPlaces(secret, prop)
  
- 
+def nbMalPlaces(prop: list, CombSecret: list) -> int:
+    nb = 0
+    liste = []                                  # couleurs du secret qui ne sont PAS bien placées
+    for i in range(len(CombSecret)):
+        if CombSecret[i] != prop[i]:            # pion du secret mal couvert par la proposition
+            liste.append(CombSecret[i])         # on le garde en réserve
+    for i in range(len(CombSecret)):
+        if CombSecret[i] != prop[i]:            # pion de la proposition qui n'est pas bien placé
+            if prop[i] in liste:                # sa couleur existe encore dans la réserve
+                nb += 1                         # c'est un mal placé
+                liste.remove(prop[i])           # on l'enlève pour ne pas le compter deux fois
+    return nb
 
-def calculerResultat(secret: list, prop: list) -> tuple:
-    return (nbBienPlaces(secret, prop), nbMalPlaces(secret, prop))
+def calculerResultat(CombSecret: list, prop: list) -> tuple:
+    return (nbBienPlaces(CombSecret, prop), nbMalPlaces(CombSecret, prop))
  
  
 
@@ -56,9 +60,8 @@ def main() -> None:
     fenetre.fill(mm.Blanc)               
     mm.afficherPlateau(fenetre)          
     mm.afficherChoixCouleur(fenetre)    
- 
-    secret = genererSecret()
- 
+    CombSecret = genererCombSecret()
+   
     # c) Boucle de jeu
     essai = 0
     gagne = False
@@ -67,17 +70,18 @@ def main() -> None:
         ligne = essai + 1                # la 1re ligne du plateau est la ligne 2 pour mm.py
  
         prop = mm.construireProposition(fenetre, ligne)   #
-        res = calculerResultat(secret, prop)           
+        res = calculerResultat(CombSecret, prop)           
         mm.afficherResultat(fenetre, res, ligne)          # iii. affichage du résultat
  
         if res[0] == NB_PIONS:           
             gagne = True
  
-    mm.afficherSecret(fenetre, secret)
+    mm.afficherSecret(fenetre, CombSecret)
+    
     if gagne:
-        afficherMessage(fenetre, "Bravo, gagne en " + str(essai) + " coup(s) !")
+        afficherMessage(fenetre, "Felicitation vous avez, gagnez en " + str(essai) + " coup(s) !")
     else:
-        afficherMessage(fenetre, "Vous avez perdu !")
+        afficherMessage(fenetre, "Oups Vous avez perdu !")
     
   
     fini = False
@@ -87,6 +91,13 @@ def main() -> None:
             if event.type == pg.QUIT:
                 fini = True
     pg.quit()
-main()
+try:              # on essaie de lancer le jeu
+    main() 
+    
+except pg.error:            # si pygame signale une erreur 
+    print("Fenêtre fermée, fin du programme.")   #  au lieu d'afficher les erreur ,afficher ce message
+    
+    
+
  
  
