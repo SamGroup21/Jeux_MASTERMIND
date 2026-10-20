@@ -48,35 +48,37 @@ def calculerResultat(CombSecret: list, prop: list) -> tuple:
 
 def afficherMessage(fenetre: pg.Surface, texte: str) -> None:
     pg.font.init                       #initialise le module de la police
-    police = pg.font.SysFont("Arial", 20)                          # monospace
-    etiquette = police.render(texte, True, mm.Bleu)
-    fenetre.blit(etiquette, (300, 680))
-    pg.display.update()
+    police = pg.font.SysFont("Arial", 20)                          # la police de la message (Arial) à 20 pixel
+    etiquette = police.render(texte, True, mm.Bleu)      #pour afficher le texte en bleu et trasnformer le texte en image
+    fenetre.blit(etiquette, (300, 680))                  #coller l'image sur les cordonne 300 et 680
+    pg.display.update()                                 # reflachir la page pour que le nouvelle modification apparaissent
  
-def main() -> None:
+def main() -> None: #fonction principal
     # a) Affichage de l'IHM(ineterface homme machine)
-    pg.display.set_caption("Bienvenu sur notre page de Jeux")
-    fenetre = pg.display.set_mode((800, 720))
-    fenetre.fill(mm.Blanc)               
-    mm.afficherPlateau(fenetre)          
-    mm.afficherChoixCouleur(fenetre)    
-    CombSecret = genererCombSecret()
+    pg.display.set_caption("Bienvenu sur notre page de Jeux") #fonctionnalité de pygame qui est de Récupérer le titre de la fenêtre actuelle
+    fenetre = pg.display.set_mode((800, 720))           # fenetre de 800 pixels de hauteur et 720 pixels de largeur
+    fenetre.fill(mm.Blanc)               #couleur blanche comme couleur principal dans la fenetre
+    mm.afficherPlateau(fenetre)              # dessine le plateau : rectangle marron, cases quadrillées et textes d'aide  
+    mm.afficherChoixCouleur(fenetre)     #dessine la palette : les 8 pastilles de couleur et la pastille marron "retirer dernier pion"
+    CombSecret = genererCombSecret()   # crée la combinaison secrète : liste de 5 couleurs tirées au hasard (cachée au joueur)
    
     # c) Boucle de jeu
     essai = 0
     gagne = False
-    while essai < NB_ESSAIS_MAX and not gagne:
-        essai = essai + 1
-        ligne = essai + 1                # la 1re ligne du plateau est la ligne 2 pour mm.py
+    while essai < NB_ESSAIS_MAX and not gagne:  # tant qu'il reste des essais ET que le joueur n'a pas gagné on continu
+
+        essai = essai + 1       # on passe à l'essai suivant (1, 2, 3...)
+        ligne = essai + 1          #a chaque essaie on change de ligne      
  
-        prop = mm.construireProposition(fenetre, ligne)   #
-        res = calculerResultat(CombSecret, prop)           
-        mm.afficherResultat(fenetre, res, ligne)          # iii. affichage du résultat
+        prop = mm.construireProposition(fenetre, ligne)   # attend 5 clics du joueur dans un tel pion, dessine les dans  la ligne
+                                                            # et retourne la proposition : une liste de 5 couleurs
+        res = calculerResultat(CombSecret, prop)           # compare la proposition
+        mm.afficherResultat(fenetre, res, ligne)          # affichage du résultat dans la fenetre selon les mal place(rond noir) et les bien placé(rond blanche)
  
-        if res[0] == NB_PIONS:           
-            gagne = True
+        if res[0] == NB_PIONS:       # le nombre de pions bien placés ; s'il vaut 5,
+            gagne = True          # tous les pions sont corrects : le joueur a trouve le secret
  
-    mm.afficherSecret(fenetre, CombSecret)
+    mm.afficherSecret(fenetre, CombSecret)  # à la fin, on montre le secret dans la ligne du haut
     
     if gagne:
         afficherMessage(fenetre, "Felicitation vous avez, gagnez en " + str(essai) + " coup(s) !")
@@ -85,12 +87,12 @@ def main() -> None:
     
   
     fini = False
-    while not fini:
+    while not fini:                  # quand l programme n'est pas encore fini         
         for event in pg.event.get():# # main()
 
-            if event.type == pg.QUIT:
+            if event.type == pg.QUIT: # l'utilisateur clique sur quitter
                 fini = True
-    pg.quit()
+    pg.quit()                           #sors dans le programme
 try:              # on essaie de lancer le jeu
     main() 
     
